@@ -1,4 +1,4 @@
-#!/home/disk/aleutians/nobackup/lmadaus/anaconda/bin/python
+#!usr/bin/python
 
 from __future__ import print_function, division
 from datetime import datetime
@@ -92,7 +92,7 @@ def get_gfs(type='hires', bounds=(-72.0, -54.5, -37.0, -26.25)):
 
 
 
-def get_terrain(terrfile='geo_em.d01.nc'):
+def get_terrain(terrfile='/home/disk/meso-home/bzim/relampago/geo_em.d01.nc'):
     """
     Loads terrain height from WRF file
     """
@@ -111,7 +111,7 @@ def get_terrain(terrfile='geo_em.d01.nc'):
 
 def make_plot(pltdat, export=False):
     gs = gridspec.GridSpec(2,2,height_ratios=(25,1))
-    plt.figure(figsize=(15,12))
+    plt.figure(figsize=(10,8))
     plt.subplot(gs[0,:])
 
     if pltdat['pltcode'] == 'precip':
@@ -145,15 +145,15 @@ def make_plot(pltdat, export=False):
     m.drawmeridians(meridians,labels=[True,False,True,False])
 
     tax = plt.subplot(gs[1,0])
-    plt.text(0,0.75, '{modelname:s} {varname:s}'.format(**pltdat), fontsize=24, ha='left', va='center', transform=tax.transAxes)
-    plt.text(0,0.00, 'Valid: {valid:%d %b %H00 UTC} | Init: {init:%d %b %H00 UTC}'.format(**pltdat), fontsize=18, ha='left', va='center', transform=tax.transAxes)
-    plt.text(1.0, 0.75, 'F{flead:03d}'.format(**pltdat), fontsize=24, ha='right', va='center', transform=tax.transAxes)
+    plt.text(0,0.75, '{modelname:s} {varname:s}'.format(**pltdat), fontsize=16, ha='left', va='center', transform=tax.transAxes)
+    plt.text(0,0.00, 'Valid: {valid:%d %b %H00 UTC} | Init: {init:%d %b %H00 UTC}'.format(**pltdat), fontsize=12, ha='left', va='center', transform=tax.transAxes)
+    plt.text(1.0, 0.75, 'F{flead:03d}'.format(**pltdat), fontsize=16, ha='right', va='center', transform=tax.transAxes)
     #plt.text(0,-0.75, 'Init: {init: %d %b %H00 UTC}'.format(**pltdat), fontsize=18, ha='left', va='center', transform=tax.transAxes)
     tax.axis('off')
 
     cax = plt.subplot(gs[1,1])
     cbar = plt.colorbar(theplot, cax=cax, orientation='horizontal')
-    cbar.set_label(label='{varname:s} [{varunit:s}]'.format(**pltdat), fontsize=18)
+    cbar.set_label(label='{varname:s} [{varunit:s}]'.format(**pltdat), fontsize=12)
     cax.tick_params(labelsize=18)
 
 
@@ -197,6 +197,8 @@ if __name__ == '__main__':
         timevar = 'time1'
     elif 'time2' in data.variables.keys():
         timevar = 'time2'
+    elif 'time8' in data.variables.keys():
+        timevar = 'time8'
     else:
         timevar = 'time'
 
@@ -243,6 +245,8 @@ if __name__ == '__main__':
         timevar = 'time1'
     elif 'time2' in data.variables.keys():
         timevar = 'time2'
+    elif 'time8' in data.variables.keys():
+        timevar = 'time8'
     else:
         timevar = 'time'
     times = num2date(data.variables[timevar][:], units = data.variables[timevar].units)

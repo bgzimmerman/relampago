@@ -6,10 +6,10 @@ import urllib
 #import urllib.request
 import os
 
-os.chdir('/home/disk/aleutians/lmadaus/relampago')
+os.chdir('/home/disk/meso-home/bzim/relampago')
 
 def download_images_smn():
-    imgdir = '/home/disk/user_www/lmadaus/relampago/smneta'
+    imgdir = '/home/disk/user_www/bzim/relampago/smneta'
     webpath = 'http://www.smn.gov.ar/dpd/cartas'
 
     filetemp = {'slp' : ('slp_{:d}.gif', [1,9,17,25,33]),
@@ -41,7 +41,7 @@ def download_images_smn():
                 outpath ='/'.join((imgdir, modelinit.strftime('%Y%m%d%H')))
                 if not os.path.exists(outpath):
                     os.system('mkdir {:s}'.format(outpath))
-            
+
             # figure out the valid date
             valid = modelinit + timedelta(hours=imgnum*3)
             # Now actually download the file
@@ -49,7 +49,7 @@ def download_images_smn():
             urllib.urlretrieve(fullpath, fulloutpath)
 
 def download_images_dmc():
-    imgdir = '/home/disk/user_www/lmadaus/relampago/dmcwrf'
+    imgdir = '/home/disk/user_www/bzim/relampago/dmcwrf'
     webpath = 'http://archivos.meteochile.gob.cl/portaldmc/meteochile/wrf/chile'
 
     filetemp = {'slp' : ('slp_espesor1000-500_D1_{:03d}.png', range(1,42)),
@@ -83,7 +83,7 @@ def download_images_dmc():
                 outpath ='/'.join((imgdir, modelinit.strftime('%Y%m%d%H')))
                 if not os.path.exists(outpath):
                     os.system('mkdir {:s}'.format(outpath))
-            
+
             # figure out the valid date
             if imgname in ['precip03','u10rainc']:
                 flead = (imgnum+1) * 3
@@ -95,7 +95,7 @@ def download_images_dmc():
             urllib.urlretrieve(fullpath, fulloutpath)
 
 def download_images_inmet():
-    imgdir = '/home/disk/user_www/lmadaus/relampago/inmetcosmo'
+    imgdir = '/home/disk/user_www/bzim/relampago/inmetcosmo'
     webpath = 'http://www.inmet.gov.br/projetos/cga/capre/cosmo7/AS'
 
     filetemp = {
@@ -125,17 +125,17 @@ def download_images_inmet():
                 outpath ='/'.join((imgdir, modelinit.strftime('%Y%m%d%H')))
                 if not os.path.exists(outpath):
                     os.system('mkdir {:s}'.format(outpath))
-            
-            flead = imgnum 
+
+            flead = imgnum
             valid = modelinit + timedelta(hours=flead)
             # Now actually download the file
             fulloutpath = '/'.join((outpath, '{:s}_{:%Y%m%d%H}_f{:03d}.png'.format(imgname, valid, flead)))
-            #print(fullpath)
+            print(fullpath)
             urllib.urlretrieve(fullpath, fulloutpath)
 
 if __name__ == '__main__':
-   #download_images_smn()
-   #download_images_dmc()
+   download_images_smn()
+   download_images_dmc()
    download_images_inmet()
 
 
