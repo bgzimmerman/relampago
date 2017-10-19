@@ -29,7 +29,7 @@ exportdir = '/home/disk/user_www/bzim/relampago'
 variables_gfs = {'Precipitable_water_entire_atmosphere_single_layer' : ('Precipitable Water','mm','pwat',(0,35),'ncar_moist'),
              'Precipitation_rate_surface_Mixed_intervals_Average' : ('Total Precipitation Rate','mm/hr','precip',(0,10.0), 'ncar_precip'),
 'Apparent_temperature_height_above_ground' : ('2m Temperature', 'degK', '2mtemp', (260, 312), 'ncar_temp'),
-'Relative_humidity_height_above_ground' : ('2m Relative Humidity', '%', '2mRH', (0, 100), 'ncar_wv')
+'Relative_humidity_height_above_ground' : ('2m Relative Humidity', '%', '2mRH', (0, 100), 'MPL_RdBu')
              }
 
 
@@ -62,7 +62,14 @@ variables_gefs = {'Convective_available_potential_energy_pressure_difference_lay
 
                  }
 
+variables_gefs_tmp = {
+             'Temperature_height_above_ground_unweightedMean' :
+                    ('2m Temperature', 'degK', '2mtemp', (260, 320), 'ncar_temp'),
+            'Temperature_height_above_ground_stdDev' :
+                    ('2m Temperature Spread', 'degK', '2mtemp', np.arange(0, 10, 0.5), 'ncar_temp'),
 
+
+                 }
 
 
 
@@ -121,15 +128,17 @@ def make_plot(pltdat, export=False):
         print(pltdat['contourfield'].min(), pltdat['contourfield'].max())
         lw=2
     else:
-        lw=1
-    theplot = plt.pcolormesh(x,y,pltdat['field'], vmin=pltdat['range'][0], vmax=pltdat['range'][1],                            cmap=pltdat['cmap'])
+        lw=2
 
     if 'contourfield' in pltdat.keys():
         spreadfield = gaussian_filter(pltdat['contourfield'],1)
-        lines = plt.contour(x,y,spreadfield, pltdat['contourlevs'],
-                            linewidths=lw)
+        lines = plt.contour(x,y,spreadfield, np.arange(pltdat['contourlevs'][0], pltdat['contourlevs'][1]),
+                            linewidths=lw, cmap = cm.RdBu_r)
         clabels = plt.clabel(lines, fmt='%2.0f')
+        import pdb; pdb.set_trace()
 
+    theplot = plt.pcolormesh(x,y,pltdat['field'], vmin=pltdat['range'][0], vmax=pltdat['range'][-1], cmap=pltdat['cmap'])
+    # OLD theplot = plt.pcolormesh(x,y,pltdat['field'], vmin=pltdat['range'][0], vmax=pltdat['range'][1], cmap=pltdat['cmap'])
     # Highlight key sites
     plt.scatter(xpt, ypt, s=100, marker='s', facecolor='Firebrick', edgecolor='white')
 
@@ -155,7 +164,6 @@ def make_plot(pltdat, export=False):
     cbar = plt.colorbar(theplot, cax=cax, orientation='horizontal')
     cbar.set_label(label='{varname:s} [{varunit:s}]'.format(**pltdat), fontsize=12)
     cax.tick_params(labelsize=18)
-
 
     plt.tight_layout()
     if export:
@@ -183,51 +191,7 @@ def make_plot(pltdat, export=False):
 
 if __name__ == '__main__':
 
-    # First, hires
-    bounds=(-72.0, -54.5, -37.0, -26.25)
-    m = Basemap(projection='merc', llcrnrlon=bounds[0], urcrnrlon=bounds[1], llcrnrlat=bounds[2], urcrnrlat=bounds[3], resolution='l', area_thresh=5000)
-
-    xhgt, yhgt, hgt = get_terrain()
-    data = get_gfs(type='hires', bounds=bounds)
-    glon, glat = np.meshgrid(data.variables['lon'][:]-360, data.variables['lat'][:])
-    x,y = m(glon, glat)
-    xpt, ypt = m(cormenlon, cormenlat)
-
-    if 'time1' in data.variables.keys():
-        timevar = 'time1'
-    elif 'time2' in data.variables.keys():
-        timevar = 'time2'
-    elif 'time8' in data.variables.keys():
-        timevar = 'time8'
-    else:
-        timevar = 'time'
-
-    times = num2date(data.variables[timevar][:], units = data.variables[timevar].units)
-    for n,time in enumerate(times):
-        #if n !=0:
-        #    continue
-        print(time)
-        flead = data.variables[timevar][n]
-        init = time - timedelta(hours=flead)
-        print(init)
-        #print(init)
-        for fullvar, varcodes in variables_gfs.items():
-            print('   ', varcodes[2])
-            plotdata = {
-            'field' : data.variables[fullvar][n].squeeze(),
-            'varname' : varcodes[0],
-            'varunit' : varcodes[1],
-            'modelname' : 'GFS',
-            'cmap' : color_map(varcodes[4]),
-            'valid' : time,
-            'init' : init,
-            'flead' : int(flead),
-            'pltcode' : varcodes[2],
-            'range' : varcodes[3],
-            'plot terrain' : True,
-            }
-            make_plot(plotdata, export=True)
-    # Now for the ensemble
+    # now for the ensemble
     # Also get lat/lon bounds
     ensbounds = (-110.0, -46.0, -50.0, -11.0)
     m = Basemap(projection='merc', llcrnrlon=ensbounds[0],
@@ -315,6 +279,25 @@ if __name__ == '__main__':
                 'plot terrain' : False,
                 }
             else:
+                # Contour the mean
+                meanlevs = varcodes[3]
+                varcodes = variables_gefs[stdevvar]
+                plotdata = {
+                'field' : np.squeeze(data.variables[stdevvar][n]),
+                'contourfield' : np.squeeze(data.variables[fullvar][n]),
+                'contourlevs' : meanlevs,
+                'varname' : varcodes[0],
+                'varunit' : varcodes[1],
+                'modelname' : 'GEFS',
+                'cmap' : color_map(varcodes[4]),
+                'valid' : time,
+                'init' : init,
+                'flead' : int(flead),
+                'pltcode' : varcodes[2],
+                'range' : varcodes[3],
+                'plot terrain' : False,
+                }
+                """
                 # Contour the stdev
                 plotdata = {
                 'field' : np.squeeze(data.variables[fullvar][n]),
@@ -331,6 +314,51 @@ if __name__ == '__main__':
                 'range' : varcodes[3],
                 'plot terrain' : False,
                 }
+                """
             make_plot(plotdata, export=True)
 
 
+    # First, hires
+    bounds=(-72.0, -54.5, -37.0, -26.25)
+    m = Basemap(projection='merc', llcrnrlon=bounds[0], urcrnrlon=bounds[1], llcrnrlat=bounds[2], urcrnrlat=bounds[3], resolution='l', area_thresh=5000)
+
+    xhgt, yhgt, hgt = get_terrain()
+    data = get_gfs(type='hires', bounds=bounds)
+    glon, glat = np.meshgrid(data.variables['lon'][:]-360, data.variables['lat'][:])
+    x,y = m(glon, glat)
+    xpt, ypt = m(cormenlon, cormenlat)
+
+    if 'time1' in data.variables.keys():
+        timevar = 'time1'
+    elif 'time2' in data.variables.keys():
+        timevar = 'time2'
+    elif 'time8' in data.variables.keys():
+        timevar = 'time8'
+    else:
+        timevar = 'time'
+
+    times = num2date(data.variables[timevar][:], units = data.variables[timevar].units)
+    for n,time in enumerate(times):
+        #if n !=0:
+        #    continue
+        print(time)
+        flead = data.variables[timevar][n]
+        init = time - timedelta(hours=flead)
+        print(init)
+        #print(init)
+        for fullvar, varcodes in variables_gfs.items():
+            print('   ', varcodes[2])
+            plotdata = {
+            'field' : data.variables[fullvar][n].squeeze(),
+            'varname' : varcodes[0],
+            'varunit' : varcodes[1],
+            'modelname' : 'GFS',
+            'cmap' : color_map(varcodes[4]),
+            'valid' : time,
+            'init' : init,
+            'flead' : int(flead),
+            'pltcode' : varcodes[2],
+            'range' : varcodes[3],
+            'plot terrain' : True,
+            }
+            make_plot(plotdata, export=True)

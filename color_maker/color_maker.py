@@ -2,7 +2,7 @@
 
 
 def color_map(name=None):
-    """ Function to load any of the NCL colormaps as 
+    """ Function to load any of the NCL colormaps as
     matplotlib LinearSegmented Colormaps.  A list of all the color
     tables available is at:
         http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml
@@ -12,8 +12,8 @@ def color_map(name=None):
         cmap = color_map('NAME OF COLORMAP HERE')
         e.g. cmap = color_map('lithology')
     """
-    
-    cmap_path = '/home/disk/p/wxchallenge/nobackup/olympex/wrf_plots/color_maker/colormaps'
+
+    cmap_path = '/home/disk/meso-home/bzim/relampago/color_maker/colormaps'
     from matplotlib.colors import LinearSegmentedColormap
     import os
     if name + '.coltbl' in os.listdir(cmap_path):
@@ -23,7 +23,7 @@ def color_map(name=None):
     else:
         print("Unable to find colormap:", name)
         return None
-    
+
     # Build the colors
     lines = infile.readlines()
     use_lines = []
