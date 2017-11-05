@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from os import environ as EV
 
 
 def color_map(name=None):
@@ -13,7 +14,7 @@ def color_map(name=None):
         e.g. cmap = color_map('lithology')
     """
 
-    cmap_path = '/home/disk/meso-home/bzim/relampago/color_maker/colormaps'
+    cmap_path = EV['HOME'] + '/relampago/color_maker/colormaps'
     from matplotlib.colors import LinearSegmentedColormap
     import os
     if name + '.coltbl' in os.listdir(cmap_path):
