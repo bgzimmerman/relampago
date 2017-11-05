@@ -3,6 +3,7 @@ from utils import *
 os.chdir(EV['HOME'] + '/relampago')
 exportdir = EV['HOME'] + '/relampagofigs'
 # Build the set of variables to be explored by adding dictionary entries
+exportdir = '/home/disk/user_www/bzim/relampago'
 # Unweighted Means have contour_intervals, while stdDev has spread_range
 # Potentially put these in later?
 variables_gefs = {}
@@ -11,14 +12,14 @@ variables_gefs['Geopotential_height_isobaric_unweightedMean'] = {
                 'units' : 'm',
                 'pltcode' : 'hgt{:.0f}',
                 'contour_intervals' : (0, 12000, 60),
-                'spread_range' : np.arange(50),
+                'spread_range' : np.arange(100),
                 'cmap' : 'ncar_precip'}
 
 variables_gefs['Geopotential_height_isobaric_stdDev'] = {
                 'short_name' : '500 hPa Height Spread',
                 'units' : 'm',
                 'pltcode' : 'hgt500',
-                'spread_range' : np.arange(30),
+                'spread_range' : np.arange(100),
                 'cmap' : 'ncar_precip'}
 
 hgt_contour_info = {

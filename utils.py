@@ -22,6 +22,7 @@ from scipy.ndimage.filters import gaussian_filter
 from os import environ as EV
 exportdir = EV['HOME'] + '/relampagofigs'
 
+exportdir = '/home/disk/user_www/bzim/relampago'
 
 def get_gfs(variables, type='hires', bounds=(-72.0, -54.5, -37.0, -26.25)):
     if type == 'hires':
@@ -116,7 +117,7 @@ def make_plot(pltdat, m, export=False):
     if export:
         outpath = '{:s}/{:s}/{:%Y%m%d%H}'.format(exportdir,pltdat['modelname'].lower(), pltdat['init'])
         filename = '{pltcode:s}_{valid:%Y%m%d%H}_f{flead:03d}.png'.format(**pltdat)
-
+        print(filename)
         outpath2= EV['HOME']+'/relampago/ftp_gifs'
         filename2= 'model.{modelname:s}.{init:%Y%m%d%H}.{flead:03d}_{pltcode:s}.png'.format(**pltdat)
 
@@ -124,6 +125,7 @@ def make_plot(pltdat, m, export=False):
             os.system('mkdir -p {:s}'.format(outpath))
 
         plt.savefig(filename, bbox_inches='tight')
+        print(outpath+filename)
         os.system('mv {:s} {:s}'.format(filename, outpath))
 
         if not os.path.exists(outpath2):
