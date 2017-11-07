@@ -166,8 +166,9 @@ def make_plot(pltdat, export=False):
         outpath = '{:s}/{:s}/{:%Y%m%d%H}'.format(exportdir,pltdat['modelname'].lower(), pltdat['init'])
         filename = '{pltcode:s}_{valid:%Y%m%d%H}_f{flead:03d}.png'.format(**pltdat)
 
+        # filenames for ftp files, add AR to the model name
         outpath2= EV['HOME']+'/relampago/ftp_gifs'
-        filename2= 'model.{modelname:s}.{init:%Y%m%d%H}.{flead:03d}_{pltcode:s}.png'.format(**pltdat)
+        filename2= 'model.{modelname:s}_AR.{init:%Y%m%d%H%M}.{flead:03d}_{pltcode:s}.png'.format(**pltdat)
 
         if not os.path.exists(outpath):
             os.system('mkdir {:s}'.format(outpath))
@@ -183,6 +184,14 @@ def make_plot(pltdat, export=False):
         os.system('convert {:s}/{:s} {:s}/{:s}'.format(outpath2, filename2, outpath2, filename2[:-3]+'gif'))
         os.system('rm {:s}/{:s}'.format(outpath2, filename2))
         plt.close()
+
+        #from ftplib import FTP
+        #ftp = FTP('catalog.eol.ucar.edu', 'anonymous', 'bzim@uw.edu')
+        #ftp.cwd('pub/incoming/catalog/relampago')
+        #with open('{:s}/{:s}'.format(outpath2, filename2) as f:
+        #        ftp.storbinary('STOR {:s}'.format(filename2), f)
+        #ftp.quit()
+
     else:
         plt.show()
 
@@ -337,7 +346,7 @@ if __name__ == '__main__':
 
 
     # First, hires
-    bounds=(-72.0, -54.5, -37.0, -26.25)
+    bounds=(-110.0, -46.0, -50.0, -11.0)
     m = Basemap(projection='merc', llcrnrlon=bounds[0], urcrnrlon=bounds[1], llcrnrlat=bounds[2], urcrnrlat=bounds[3], resolution='l', area_thresh=5000)
 
     xhgt, yhgt, hgt = get_terrain()

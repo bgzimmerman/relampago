@@ -11,22 +11,35 @@ variables_gefs['Geopotential_height_isobaric_unweightedMean'] = {
                 'short_name' : '{:.0f} hPa Height',
                 'units' : 'm',
                 'pltcode' : 'hgt{:.0f}',
-                'contour_intervals' : (0, 12000, 60),
-                'spread_range' : np.arange(100),
+                'contour_info' : {
+                    '500' : ((4000, 7000, 60), np.arange(100)),
+                    '925' : ((0, 4000, 30), np.arange(100)),
+                    '250' : ((8000, 13000, 120), np.arange(120))
+                    }
                 'cmap' : 'ncar_precip'}
 
 variables_gefs['Geopotential_height_isobaric_stdDev'] = {
-                'short_name' : '500 hPa Height Spread',
+                'short_name' : '{:.0f} hPa Height Spread',
                 'units' : 'm',
-                'pltcode' : 'hgt500',
-                'spread_range' : np.arange(100),
+                'pltcode' : 'hgt{:.0f}',
                 'cmap' : 'ncar_precip'}
 
-hgt_contour_info = {
-    '500' : ((4000, 7000, 60), np.arange(100)),
-    '925' : ((0, 4000, 30), np.arange(100)),
-    '250' : ((8000, 13000, 120), np.arange(100))
-    }
+variables_gefs['Temperature_isobaric_unweightedMean'] = {
+                'short_name' : '{:.0f} hPa Temperature',
+                'units' : 'degC',
+                'pltcode' : 'temp{:.0f}',
+                'contour_info' : {
+                    '500' : ((0, 330, 2), np.arange(10)),
+                    '925' : ((0, 330, 2), np.arange(10)),
+                    '250' : ((0, 330, 2), np.arange(10))
+                    }
+                'cmap' : 'ncar_temp'}
+
+variables_gefs['Temperature_isobaric_stdDev'] = {
+                'short_name' : '{:.0f} hPa Temperature Spread',
+                'units' : 'degC',
+                'pltcode' : 'temp{:.0f}',
+                'cmap' : 'ncar_temp'}
 
 ensbounds = (-110.0, -46.0, -50.0, -11.0)
 m = Basemap(projection='merc', llcrnrlon=ensbounds[0],
@@ -66,25 +79,24 @@ for fullvar, varcodes in variables_gefs.items():
         flead = data.variables[timevar][n]
         init = time - timedelta(hours=flead)
         print(init)
-        if varcodes['pltcode'].startswith('hgt'):
-            isolevs = data.variables['isobaric2'][:]
-            for level in [92500., 50000., 25000.]:
-                hdex = isolevs == level
-                plotdata = {
-                'field' : np.squeeze(data.variables[stdevvar][n, hdex]),
-                'contourfield' : np.squeeze(data.variables[fullvar][n, hdex]),
-                'contourlevs' : hgt_contour_info['{:.0f}'.format(level/100)][0],
-                'glon' : glon,
-                'glat' : glat,
-                'varname' : varcodes['short_name'].format(level/100),
-                'varunit' : varcodes['units'],
-                'modelname' : 'GEFS',
-                'cmap' : color_map(varcodes['cmap']),
-                'valid' : time,
-                'init' : init,
-                'flead' : int(flead),
-                'pltcode' : varcodes['pltcode'].format(level/100),
-                'range' : hgt_contour_info['{:.0f}'.format(level/100)][1],
-                'plot terrain' : False,
-                }
-                make_plot(plotdata, m, export=True)
+        isolevs = data.variables['isobaric2'][:]
+        for level in [92500., 50000., 25000.]:
+            hdex = isolevs == level
+            plotdata = {
+            'field' : np.squeeze(data.variables[stdevvar][n, hdex]),
+            'contourfield' : np.squeeze(data.variables[fullvar][n, hdex]),
+            'contourlevs' : varcodes['contour_info']['{:.0f}'.format(level/100)][0],
+            'glon' : glon,
+            'glat' : glat,
+            'varname' : varcodes['short_name'].format(level/100),
+            'varunit' : varcodes['units'],
+            'modelname' : 'GEFS',
+            'cmap' : color_map(varcodes['cmap']),
+            'valid' : time,
+            'init' : init,
+            'flead' : int(flead),
+            'pltcode' : varcodes['pltcode'].format(level/100),
+            'range' : varcodes['contour_info']['{:.0f}'.format(level/100)][1],
+            'plot terrain' : False,
+            }
+            make_plot(plotdata, m, export=True)

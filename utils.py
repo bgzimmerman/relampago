@@ -118,8 +118,9 @@ def make_plot(pltdat, m, export=False):
         outpath = '{:s}/{:s}/{:%Y%m%d%H}'.format(exportdir,pltdat['modelname'].lower(), pltdat['init'])
         filename = '{pltcode:s}_{valid:%Y%m%d%H}_f{flead:03d}.png'.format(**pltdat)
         print(filename)
+
         outpath2= EV['HOME']+'/relampago/ftp_gifs'
-        filename2= 'model.{modelname:s}.{init:%Y%m%d%H}.{flead:03d}_{pltcode:s}.png'.format(**pltdat)
+        filename2= 'model.{modelname:s}_AR.{init:%Y%m%d%H%M}.{flead:03d}_{pltcode:s}.png'.format(**pltdat)
 
         if not os.path.exists(outpath):
             os.system('mkdir -p {:s}'.format(outpath))
@@ -133,8 +134,14 @@ def make_plot(pltdat, m, export=False):
         print(filename2)
         plt.savefig(filename2, bbox_inches='tight')
         os.system('mv {:s} {:s}'.format(filename2, outpath2))
-        os.system('convert {:s}/{:s} {:s}/{:s}'.format(outpath2, filename2, outpath2, filename2[:-3]+'gif'))
-        os.system('rm {:s}/{:s}'.format(outpath2, filename2))
+        #os.system('convert {:s}/{:s} {:s}/{:s}'.format(outpath2, filename2, outpath2, filename2[:-3]+'gif'))
+        #os.system('rm {:s}/{:s}'.format(outpath2, filename2))
         plt.close()
+        from ftplib import FTP
+        ftp = FTP('catalog.eol.ucar.edu', 'anonymous', 'bzim@uw.edu')
+        ftp.cwd('pub/incoming/catalog/relampago')
+        with open('{:s}/{:s}'.format(outpath2, filename2)) as f:
+                ftp.storbinary('STOR {:s}'.format(filename2), f)
+        ftp.quit()
     else:
         plt.show()
